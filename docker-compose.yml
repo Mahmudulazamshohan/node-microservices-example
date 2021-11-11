@@ -1,0 +1,108 @@
+version: "3"
+services:
+  auth_container:
+    build:
+      context: ./services/authService
+      dockerfile: auth.dockerfile
+    image: auth
+    stdin_open: true
+    tty: true
+    container_name: auth_container
+    env_file:
+      - ./services/authService/.env
+      - ./global.env
+    ports:
+      - "6001:6001"
+    networks:
+      - app-network
+    depends_on:
+      - mongodb_container
+  accounts_container:
+    build:
+      context: ./services/accountsService
+      dockerfile: accounts.dockerfile
+    image: accounts
+    stdin_open: true
+    tty: true
+    container_name: accounts_container
+    env_file:
+      - ./services/accountsService/.env
+      - ./global.env
+    ports:
+      - "6002:6002"
+    networks:
+      - app-network
+    depends_on:
+      - mongodb_container
+  products_container:
+    build:
+      context: ./services/productsService
+      dockerfile: products.dockerfile
+    image: products
+    stdin_open: true
+    tty: true
+    container_name: products_container
+    env_file:
+      - ./services/productsService/.env
+      - ./global.env
+    ports:
+      - "6003:6003"
+    networks:
+      - app-network
+    depends_on:
+      - mongodb_container
+  nginx_http:
+    build:
+      context: ./nginx
+      dockerfile: nginx.dockerfile
+    image: nginx_http
+    stdin_open: true
+    container_name: nginx_http
+    tty: true
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+    depends_on:
+      - products_container
+      - auth_container
+      - accounts_container
+  mongodb_container:
+    image: mongo:4.1.8-xenial
+    container_name: mongodb_container
+    restart: unless-stopped
+    env_file: ./mongodb/.env
+    ports:
+      - "27017:27017"
+    volumes:
+      - dbdata:/data/db
+    networks:
+      - app-network
+
+  rabbitmq_server:
+    image: rabbitmq:3.9-management-alpine
+    container_name: rabbitmq_server
+    env_file: ./rabbitmq/.env
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - app-network
+  redis:
+    image: "bitnami/redis:latest"
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - redis_data:/bitnami/redis/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+  redis_data:
