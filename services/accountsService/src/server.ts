@@ -1,4 +1,5 @@
 "use strict";
+
 // packages import
 import database from "./utils/database";
 import { Env } from "./utils/env";
