@@ -5,6 +5,6 @@ export const AuthMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("auth");
+  console.log("This is auth middleware");
   next();
 };

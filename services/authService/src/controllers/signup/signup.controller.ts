@@ -22,9 +22,12 @@ class SignupController implements ControllerInterface {
     this.router.post(this.path, this.middleware, this.create);
   }
   public async index(request: Request, response: Response) {
-    const Forms = request.body;
+    if (request.body) {
+      const Forms = request.body;
+    }
     const userService = new UserService();
     const users = await userService.Users();
+    console.log("users", users);
 
     HTTPResponse.json<any>(response, { users });
   }

@@ -30,9 +30,9 @@ class UserService {
     }
   }
 
-  public Users(): Promise<object> {
+  public async Users(): Promise<object> {
     try {
-      return this.repository.FindAllUsers();
+      return await this.repository.FindAllUsers();
     } catch (err: any) {
       throw new ApiError(
         "API Error " + err.message,
