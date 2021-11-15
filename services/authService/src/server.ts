@@ -16,6 +16,11 @@ import { multiThreadingCluster } from "./helpers";
 
 import LoginController from "./controllers/login/login.controller";
 import SignupController from "./controllers/signup/signup.controller";
+import {
+  MessageQueueProvider,
+  MessageQueueType,
+} from "./utils/message-queue";
+import { MQueue } from "./configs/mqueue";
 
 // Connect database
 Database();
@@ -26,6 +31,35 @@ const app = new App(
   Env?.PORT,
   [Compression()]
 );
+(async () => {
+  const messageQueueProvider = new MessageQueueProvider();
+
+  await messageQueueProvider.queueAssert(MQueue.PRODUCT_ORDER);
+
+  type MType = {
+    content: {
+      c: number;
+      name: number;
+    };
+  };
+  messageQueueProvider.on(
+    MQueue.PRODUCT_ORDER,
+    (msg: MType) => {
+      console.log(msg.content.name);
+    },
+    MessageQueueType.JSON
+  );
+
+  let c = 1;
+  let interval = setInterval(async () => {
+    await messageQueueProvider.send(
+      MQueue.PRODUCT_ORDER,
+      Buffer.from(JSON.stringify({ c, name: Math.random() * 1000 }))
+    );
+    if (c >= 10) clearInterval(interval);
+    c++;
+  }, 1000);
+})();
 
 // Listen to Port
 if (Env?.APP_DEBUG === "true") app.listen();

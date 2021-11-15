@@ -43,3 +43,18 @@ export class FileHandleError extends BaseError {}
  * This error will throw if there any Database Error got any related exception error
  */
 export class DatabaseError extends BaseError {}
+
+export class RabbitMQError extends Error {
+  /**
+   *  Throw Rabbit MQ Error constructor
+   * @param name
+   * @param httpCode
+   * @param description
+   * @param isOperational
+   */
+  constructor(description: string) {
+    super(description);
+    Object.setPrototypeOf(this, new.target.prototype);
+    Error.captureStackTrace(this);
+  }
+}

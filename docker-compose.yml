@@ -71,7 +71,6 @@ services:
     image: mongo:4.1.8-xenial
     container_name: mongodb_container
     restart: unless-stopped
-    env_file: ./mongodb/.env
     ports:
       - "27017:27017"
     volumes:
