@@ -15,11 +15,14 @@ import errorMiddleware from "./middlewares/error.middleware";
 import { multiThreadingCluster } from "./helpers";
 
 import LoginController from "./controllers/login/login.controller";
+
 import SignupController from "./controllers/signup/signup.controller";
+
 import {
   MessageQueueProvider,
   MessageQueueType,
 } from "./utils/message-queue";
+
 import { MQueue } from "./configs/mqueue";
 
 // Connect database
@@ -51,6 +54,7 @@ const app = new App(
   );
 
   let c = 1;
+
   let interval = setInterval(async () => {
     await messageQueueProvider.send(
       MQueue.PRODUCT_ORDER,
