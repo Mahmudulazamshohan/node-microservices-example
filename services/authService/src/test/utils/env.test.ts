@@ -4,13 +4,13 @@ import { Env } from "../../utils/env";
 const data = dotenv.config().parsed;
 
 describe("Env file testcases", () => {
-  test("Env DataType test", () => {
+  test("env data type test", () => {
     expect(typeof Env).toBe("object");
   });
-  test("Received data DataType test", () => {
+  test("received data data type test", () => {
     expect(typeof data).toBe("object");
   });
-  test("Check ENV data", () => {
+  test("check env data", () => {
     expect(JSON.parse(JSON.stringify(Env))).toEqual(data);
   });
 });

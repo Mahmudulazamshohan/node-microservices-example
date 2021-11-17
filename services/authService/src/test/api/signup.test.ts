@@ -1,8 +1,9 @@
 import axios from "axios";
+
 const BASE_URL = "http://localhost:6001";
 
 describe("Sign API TestCase", () => {
-  test("/GET /signup Status Code test", async () => {
+  test("/GET /signup - status code test", async () => {
     try {
       const response: any = await axios.get(`${BASE_URL}/signup`);
 
@@ -21,12 +22,12 @@ describe("Sign API TestCase", () => {
       ];
       const user = Object.keys(response.data.users[0]);
 
-      expect(property).toEqual(user);
+      expect(property).toContainEqual(user);
     } catch (err) {
       throw err;
     }
   });
-  test("/GET /signup Property test", async () => {
+  test("/GET /signup property test", async () => {
     try {
       const response: any = await axios.get(`${BASE_URL}/signup`);
 
@@ -44,7 +45,7 @@ describe("Sign API TestCase", () => {
         "__v",
       ];
       const user = Object.keys(response.data.users[0]);
-      expect(property).toEqual(user);
+      expect(property).toContainEqual(user);
     } catch (err) {
       throw err;
     }
@@ -70,6 +71,7 @@ describe("Sign API TestCase", () => {
         ];
 
         const user = Object.keys(response.data.users[0]);
+
         expect(property).toEqual(user);
       })
       .catch((err) => {

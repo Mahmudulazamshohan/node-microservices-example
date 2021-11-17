@@ -59,7 +59,7 @@ export const rabbitMQConsume = async (
   channel: Channel,
   queue: string,
   callback: Function,
-  options: IRabbitMQConsume
+  options: IRabbitMQConsume = {}
 ): Promise<Replies.Consume> => {
   return channel.consume(queue, (msg) => callback(msg), options);
 };
@@ -75,7 +75,15 @@ export const rabbitMQSentToQueue = async (
   channel: Channel,
   queue: string,
   content: Buffer,
-  options: Options.Publish
+  options: Options.Publish = {}
 ) => {
   return await channel.sendToQueue(queue, content, options);
+};
+
+export const rabbitMQDeleteQueue = async (
+  channel: Channel,
+  queue: string,
+  options: Options.DeleteQueue = {}
+) => {
+  return await channel.deleteQueue(queue, options);
 };
