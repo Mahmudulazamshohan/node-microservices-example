@@ -1,4 +1,9 @@
-import amqplib, { Channel, Options, Replies } from "amqplib";
+import amqplib, {
+  Channel,
+  ConsumeMessage,
+  Options,
+  Replies,
+} from "amqplib";
 import EventEmitter from "events";
 
 import { debugPrint } from "../helpers";

@@ -45,23 +45,37 @@ const app = new App(
       name: number;
     };
   };
+
   messageQueueProvider.on(
     MQueue.PRODUCT_ORDER,
     (msg: MType) => {
-      console.log(msg.content.name);
+      console.log("received data", msg.content);
     },
-    MessageQueueType.JSON
+    MessageQueueType.JSON,
+    () => {
+      return {
+        test: "this is test",
+      };
+    }
   );
 
-  let c = 1;
+  let count: number = 1;
+  const REPLY_QUEUE = "amq.rabbitmq.reply-to";
 
   let interval = setInterval(async () => {
     await messageQueueProvider.send(
       MQueue.PRODUCT_ORDER,
-      Buffer.from(JSON.stringify({ c, name: Math.random() * 1000 }))
+      { count, name: Math.random() * 1000 },
+      {},
+      REPLY_QUEUE,
+      (msg) => {
+        console.log(msg);
+      }
     );
-    if (c >= 10) clearInterval(interval);
-    c++;
+
+    if (count >= 10) clearInterval(interval);
+
+    count++;
   }, 1000);
 })();
 
