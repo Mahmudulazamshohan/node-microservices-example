@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  BrowserRouter,
-  Link,
-  Route,
-  Switch,
-  useHistory,
-  useParams,
-  useRouteMatch,
-  withRouter,
-} from "react-router-dom";
+import { BrowserRouter, Switch } from "react-router-dom";
 // css import
 import "./App.css";
 

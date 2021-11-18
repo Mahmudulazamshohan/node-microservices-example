@@ -1,3 +1,3 @@
-# microservices
+# Microservices architecture
 
-- ./rabbitmq/configuration/:/etc/rabbitmq/
+<img src="screenshots/main-arch.png">
