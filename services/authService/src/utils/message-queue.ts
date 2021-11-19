@@ -1,12 +1,14 @@
 import { Channel, ConsumeMessage, Options, Replies } from "amqplib";
+import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
-import { debugPrint } from "../helpers";
+import { debugPrint, isJSON } from "../helpers";
 import { RabbitMQError } from "./exceptions";
 
 import {
   rabbitMQAssertQueue,
   rabbitMQChannel,
   rabbitMQConsume,
+  rabbitMQDeleteQueue,
   rabbitMQSentToQueue,
 } from "./rabbitmq";
 
@@ -52,9 +54,12 @@ export class MessageQueueProvider implements IMessageQueueProvider {
     content: object,
     options?: Options.Publish,
     replyQueue?: string,
-    receive?: Function
+    receive?: any
   ) {
     const correlationId = uuidv4();
+
+    let responseEmitter = new EventEmitter();
+    responseEmitter.setMaxListeners(0);
 
     if (!this.isAssertQueue)
       throw new RabbitMQError(
@@ -63,9 +68,12 @@ export class MessageQueueProvider implements IMessageQueueProvider {
     if (!!replyQueue) {
       await rabbitMQConsume(
         await this.channel,
-        queue,
+        replyQueue,
         (msg) => {
-          receive && receive(msg);
+          responseEmitter.emit(
+            msg.properties.correlationId,
+            msg.content.toString("utf8")
+          );
         },
         {
           noAck: true,
@@ -73,15 +81,27 @@ export class MessageQueueProvider implements IMessageQueueProvider {
       );
     }
 
-    let data: object = {
-      ...(!!replyQueue ? { correlationId, replyTo: replyQueue } : {}),
-      ...content,
+    let finalOptions: object = {
+      ...(!!replyQueue
+        ? {
+            correlationId,
+            replyTo: replyQueue,
+          }
+        : {}),
+      ...options,
     };
-    console.log(data);
+
     (await this.channel).sendToQueue(
       queue,
-      Buffer.from(JSON.stringify(data)),
-      options
+      Buffer.from(JSON.stringify(content)),
+      finalOptions
+    );
+    return new Promise((resolve, reject) =>
+      responseEmitter.once(correlationId, (data) => {
+        receive(data);
+        if (isJSON(data)) resolve(JSON.parse(data));
+        else resolve(data);
+      })
     );
   }
   async sendAndReponse(
@@ -105,6 +125,7 @@ export class MessageQueueProvider implements IMessageQueueProvider {
       async (msg: ConsumeMessage | null) => {
         if (returnType === MessageQueueType.JSON) {
           const content: any = msg?.content.toString();
+          // console.log("--->", content);
 
           listener({
             ...msg,
@@ -118,24 +139,37 @@ export class MessageQueueProvider implements IMessageQueueProvider {
         } else {
           listener(msg);
         }
+
         if (!!reply) {
-          new Promise((resolve, reject) => setTimeout(resolve, 1000))
+          await new Promise((resolve, reject) =>
+            setTimeout(resolve, 1000)
+          )
             .then(async () => {
+              // -------------->
+
               if (
                 msg?.properties.replyTo &&
                 msg?.properties.correlationId
               ) {
+                // Message Queue
                 rabbitMQSentToQueue(
                   await self.channel,
                   msg?.properties.replyTo,
-                  Buffer.from(JSON.stringify(reply()))
+                  Buffer.from(
+                    JSON.stringify(
+                      await reply(msg?.content.toString())
+                    )
+                  ),
+                  {
+                    correlationId: msg?.properties.correlationId,
+                  }
                 );
               } else {
-                throw new Error(
-                  `Properties replyTo & correlationId ${JSON.stringify(
-                    msg?.properties
-                  )}`
-                );
+                // throw new Error(
+                //   `Properties replyTo & correlationId ${JSON.stringify(
+                //     msg?.properties
+                //   )}`
+                // );
               }
             })
             .catch((err) =>
@@ -144,7 +178,17 @@ export class MessageQueueProvider implements IMessageQueueProvider {
         } else {
           if (msg) (await self.channel).ack(msg);
         }
+      },
+      {
+        noAck: true,
       }
     );
+  }
+  /**
+   * Delete Queue
+   * @param queue
+   */
+  async delete(queue: string) {
+    await rabbitMQDeleteQueue(await this.channel, queue);
   }
 }

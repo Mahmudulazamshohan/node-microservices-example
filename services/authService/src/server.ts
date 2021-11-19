@@ -24,6 +24,7 @@ import {
 } from "./utils/message-queue";
 
 import { MQueue } from "./configs/mqueue";
+import UserModel from "./models/user/user.model";
 
 // Connect database
 Database();
@@ -35,6 +36,7 @@ const app = new App(
   [Compression()]
 );
 (async () => {
+  //
   const messageQueueProvider = new MessageQueueProvider();
 
   await messageQueueProvider.queueAssert(MQueue.PRODUCT_ORDER);
@@ -49,34 +51,33 @@ const app = new App(
   messageQueueProvider.on(
     MQueue.PRODUCT_ORDER,
     (msg: MType) => {
-      console.log("received data", msg.content);
+      console.log("msg", msg.content);
     },
     MessageQueueType.JSON,
-    () => {
-      return {
-        test: "this is test",
-      };
+    (msg: MType) => {
+      console.log("msg receivd", msg);
+      return UserModel.find({});
     }
   );
 
   let count: number = 1;
+
   const REPLY_QUEUE = "amq.rabbitmq.reply-to";
 
-  let interval = setInterval(async () => {
-    await messageQueueProvider.send(
-      MQueue.PRODUCT_ORDER,
-      { count, name: Math.random() * 1000 },
-      {},
-      REPLY_QUEUE,
-      (msg) => {
-        console.log(msg);
-      }
-    );
+  const response = await messageQueueProvider.send(
+    MQueue.PRODUCT_ORDER,
+    {
+      count,
+      name: "Shohan",
+    },
+    {},
+    REPLY_QUEUE,
+    (msg) => {
+      console.log("ReplyQueue", JSON.parse(msg));
+    }
+  );
 
-    if (count >= 10) clearInterval(interval);
-
-    count++;
-  }, 1000);
+  console.log("response", response);
 })();
 
 // Listen to Port

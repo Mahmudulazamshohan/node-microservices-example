@@ -33,3 +33,8 @@ fontend/node_modules
 services/productsService/node_modules
 services/authService/node_modules
 services/accountsService/node_modules
+
+
+services/productsService/build
+services/authService/build
+services/accountsService/build

@@ -137,3 +137,11 @@ export const redCmd = (...args: string[]) => {
 export const redBgCmd = (...args: string[]) => {
   return chalk.bgRed(args);
 };
+export const isJSON = (str) => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
