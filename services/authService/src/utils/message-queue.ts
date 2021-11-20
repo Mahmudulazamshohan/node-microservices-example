@@ -59,12 +59,14 @@ export class MessageQueueProvider implements IMessageQueueProvider {
     const correlationId = uuidv4();
 
     let responseEmitter = new EventEmitter();
+
     responseEmitter.setMaxListeners(0);
 
     if (!this.isAssertQueue)
       throw new RabbitMQError(
         "Assert Queue not found,please create queueAssert"
       );
+
     if (!!replyQueue) {
       await rabbitMQConsume(
         await this.channel,
@@ -96,13 +98,18 @@ export class MessageQueueProvider implements IMessageQueueProvider {
       Buffer.from(JSON.stringify(content)),
       finalOptions
     );
-    return new Promise((resolve, reject) =>
-      responseEmitter.once(correlationId, (data) => {
-        receive(data);
-        if (isJSON(data)) resolve(JSON.parse(data));
-        else resolve(data);
-      })
-    );
+    if (replyQueue) {
+      return new Promise((resolve, reject) =>
+        responseEmitter.once(correlationId, (data) => {
+          if (receive) {
+            receive(data);
+          }
+
+          if (isJSON(data)) resolve(JSON.parse(data));
+          else resolve(data);
+        })
+      );
+    }
   }
   async sendAndReponse(
     queue: string,

@@ -71,10 +71,10 @@ const app = new App(
       name: "Shohan",
     },
     {},
-    REPLY_QUEUE,
-    (msg) => {
-      console.log("ReplyQueue", JSON.parse(msg));
-    }
+    REPLY_QUEUE
+    // (msg) => {
+    //   console.log("ReplyQueue", JSON.parse(msg));
+    // }
   );
 
   console.log("response", response);
