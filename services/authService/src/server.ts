@@ -36,48 +36,51 @@ const app = new App(
   [Compression()]
 );
 (async () => {
-  //
-  const messageQueueProvider = new MessageQueueProvider();
+  try {
+    const messageQueueProvider = new MessageQueueProvider();
 
-  await messageQueueProvider.queueAssert(MQueue.PRODUCT_ORDER);
+    await messageQueueProvider.queueAssert(MQueue.PRODUCT_ORDER);
 
-  type MType = {
-    content: {
-      c: number;
-      name: number;
+    type MType = {
+      content: {
+        c: number;
+        name: number;
+      };
     };
-  };
 
-  messageQueueProvider.on(
-    MQueue.PRODUCT_ORDER,
-    (msg: MType) => {
-      console.log("msg", msg.content);
-    },
-    MessageQueueType.JSON,
-    (msg: MType) => {
-      console.log("msg receivd", msg);
-      return UserModel.find({});
-    }
-  );
+    messageQueueProvider.on(
+      MQueue.PRODUCT_ORDER,
+      (msg: MType) => {
+        console.log("msg", msg.content);
+      },
+      MessageQueueType.JSON,
+      (msg: MType) => {
+        console.log("msg receivd", msg);
+        return UserModel.find({});
+      }
+    );
 
-  let count: number = 1;
+    let count: number = 1;
 
-  const REPLY_QUEUE = "amq.rabbitmq.reply-to";
+    const REPLY_QUEUE = "amq.rabbitmq.reply-to";
 
-  const response = await messageQueueProvider.send(
-    MQueue.PRODUCT_ORDER,
-    {
-      count,
-      name: "Shohan",
-    },
-    {},
-    REPLY_QUEUE
-    // (msg) => {
-    //   console.log("ReplyQueue", JSON.parse(msg));
-    // }
-  );
+    const response = await messageQueueProvider.send(
+      MQueue.PRODUCT_ORDER,
+      {
+        count,
+        name: "Shohan",
+      },
+      {},
+      REPLY_QUEUE
+      // (msg) => {
+      //   console.log("ReplyQueue", JSON.parse(msg));
+      // }
+    );
 
-  console.log("response", response);
+    console.log("response", response);
+  } catch (err) {
+    console.log(err);
+  }
 })();
 
 // Listen to Port

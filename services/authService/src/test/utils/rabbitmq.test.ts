@@ -1,4 +1,3 @@
-import { Channel } from "amqplib";
 import {
   rabbitConnectionURI,
   rabbitMQAssertQueue,
