@@ -1,19 +1,30 @@
 import Mongoose from "mongoose";
-import { debugPrint, mongodbURLParse, yellowCmd } from "../helpers";
+import {
+  blueCmd,
+  debugPrint,
+  mongodbURLParse,
+  redBgCmd,
+  yellowCmd,
+} from "../helpers";
 import database from "../configs/database";
 
 export default async () => {
+  console.log("Database connecting.......");
+
   return await Mongoose.connect(
     mongodbURLParse(database.mongodb),
     database.mongodb.options
   )
     .then(() => {
-      console.log("Connected Mongodb");
+      console.log(`Connected Mongodb ${database.mongodb.database}`);
+
       debugPrint(
         yellowCmd(
-          `MONGODB - ${database.mongodb.host}:${database.mongodb.port}`
+          `MONGODB - ${database.mongodb.host}:${database.mongodb.port}-${database.mongodb.database}`
         )
       );
     })
-    .catch((err) => console.error(err.message));
+    .catch((err) =>
+      debugPrint(blueCmd(`MONGODB Error:- `) + redBgCmd(err.message))
+    );
 };

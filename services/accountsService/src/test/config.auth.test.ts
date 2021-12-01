@@ -1,7 +1,7 @@
 import auth from "../configs/auth";
 import Users from "../models/user/user.model";
 
-test("config.auth data format check", () => {
+test("Auth Config data format check", () => {
   const data = {
     guards: {
       api: {

@@ -1,4 +1,4 @@
-import { env } from "src/helpers";
+import { env } from "../helpers";
 
 export default {
   smtp: {

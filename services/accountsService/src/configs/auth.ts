@@ -1,5 +1,4 @@
 import Users from "../models/user/user.model";
-
 export default {
   guards: {
     api: {

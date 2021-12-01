@@ -1,39 +1,95 @@
 "use strict";
+import exceptionHandler from "./utils/exception-handler";
 
 // packages import
-import database from "./utils/database";
-import { Env } from "./utils/env";
-import App from "./app";
-import errorMiddleware from "./middlewares/error.middleware";
+import Database from "./utils/database";
 
-import appConfig from "./configs/app";
-import swaggerDocument from "./swagger.json";
+import Compression from "compression";
+
+import { Env } from "./utils/env";
+
+import App from "./app";
+
+import errorMiddleware from "./middlewares/error.middleware";
 
 import { multiThreadingCluster } from "./helpers";
 
-import { HttpError } from "./utils/exceptions";
-import { HttpStatusCode } from "./utils/httpstatuscode";
+import LoginController from "./controllers/login/login.controller";
 
-import PostsController from "./controllers/post.controller";
-import LoginController from "./controllers/login.controller";
+import SignupController from "./controllers/signup/signup.controller";
 
-import JsonResource from "./utils/response";
+import {
+  MessageQueueProvider,
+  MessageQueueType,
+} from "./utils/message-queue";
 
-database();
-/**
- *
- **/
-function errorHandler(err, req, res, next) {
-  console.log("errorHandler", err);
-  res.status(err.status || 500).send(err.message);
-}
+import { MQueue } from "./configs/mqueue";
+import UserModel from "./models/user/user.model";
 
+// Connect database
+Database();
+
+// Create App instance
 const app = new App(
-  [new PostsController(), new LoginController()],
+  [new LoginController(), new SignupController()],
   Env?.PORT,
-  [errorMiddleware]
+  [Compression()]
 );
+// (async () => {
+//   try {
+//     const messageQueueProvider = new MessageQueueProvider();
 
-multiThreadingCluster(async () => {
-  await app.listen();
-}, false);
+//     await messageQueueProvider.queueAssert(MQueue.PRODUCT_ORDER);
+
+//     type MType = {
+//       content: {
+//         c: number;
+//         name: number;
+//       };
+//     };
+
+//     // messageQueueProvider.on(
+//     //   MQueue.PRODUCT_ORDER,
+//     //   (msg: MType) => {
+//     //     console.log("msg", msg.content);
+//     //   },
+//     //   MessageQueueType.JSON,
+//     //   (msg: MType) => {
+//     //     console.log("msg receivd", msg);
+//     //     return UserModel.find({});
+//     //   }
+//     // );
+
+//     let count: number = 1;
+
+//     const REPLY_QUEUE = "amq.rabbitmq.reply-to";
+
+//     console.time("debug");
+
+//     const response = await messageQueueProvider.send(
+//       MQueue.PRODUCT_ORDER,
+//       {
+//         count,
+//         name: "Shohan",
+//       },
+//       {},
+//       REPLY_QUEUE
+//       // (msg) => {
+//       //   console.log("ReplyQueue", JSON.parse(msg));
+//       // }
+//     );
+
+//     console.log("response", response);
+
+//     console.timeEnd("debug");
+//   } catch (err) {
+//     console.log(err);
+//   }
+// })();
+
+// Listen to Port
+if (Env?.APP_DEBUG === "true") app.listen();
+else
+  multiThreadingCluster(async () => {
+    await app.listen();
+  }, false);

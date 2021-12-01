@@ -1,11 +1,17 @@
 import process from "process";
-import { Env } from "../utils/env";
 import os from "os";
 import cluster from "cluster";
 import dotenv, { DotenvParseOptions } from "dotenv";
 import chalk from "chalk";
+
+import { BaseError, DatabaseError } from "../utils/exceptions";
+import HttpStatusCode from "../utils/httpstatuscode";
+import { Env } from "../utils/env";
+
 export const debugPrint =
-  process.env.NODE_ENV === "development" ? console.log : (): void => {};
+  process.env.NODE_ENV === "development"
+    ? console.log
+    : (): void => {};
 
 interface IUrlFormat {
   host: string;
@@ -19,6 +25,24 @@ interface IUrlFormat {
  * @returns
  */
 export const mongodbURLParse = (uri: IUrlFormat) => {
+  if (!uri.database)
+    throw new DatabaseError(
+      "Database not found ,please add database",
+      HttpStatusCode.BAD_GATEWAY
+    );
+
+  if (!uri.port)
+    throw new DatabaseError(
+      "Port not found , please add port",
+      HttpStatusCode.BAD_GATEWAY
+    );
+
+  if (!uri.host)
+    throw new DatabaseError(
+      "Host not found , please add host",
+      HttpStatusCode.BAD_GATEWAY
+    );
+
   return `mongodb://${uri.host}:${uri.port}/${uri.database}`;
 };
 /**
@@ -32,7 +56,7 @@ export const env = <G>(name: G | string, optional?: any) => {
   if (name && Env) {
     return v[name];
   } else {
-    throw new Error("Env variable not found");
+    throw new BaseError("Env variable not found");
   }
 };
 /**
@@ -49,19 +73,24 @@ export const multiThreadingCluster = (
 
   if (cluster.isMaster) {
     // Fork workers.
-    Array.from(Array(numberOfCpus)).forEach((cpu) => {
+    Array.from(Array<number>(numberOfCpus)).forEach((cpu) => {
       cluster.fork();
     });
 
     cluster.on("online", () => {
-      isLogEnable && console.log(`Worker in process : ${process.pid}`);
+      isLogEnable &&
+        console.log(`Worker in process : ${process.pid}`);
     });
 
     cluster.on("message", console.log);
 
     cluster.on("exit", (worker, code, signal) => {
       isLogEnable &&
-        console.log(`Process worker ${worker.process.pid} died`, code, signal);
+        console.log(
+          `Process worker ${worker.process.pid} died`,
+          code,
+          signal
+        );
     });
   } else {
     // Child process
@@ -107,4 +136,12 @@ export const redCmd = (...args: string[]) => {
  */
 export const redBgCmd = (...args: string[]) => {
   return chalk.bgRed(args);
+};
+export const isJSON = (str) => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
 };

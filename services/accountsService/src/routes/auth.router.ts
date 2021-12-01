@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import JsonWebToken from "jsonwebtoken";
 
-import { AuthMiddleware } from "./../middlewares/auth.middleware";
+import { AuthMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 

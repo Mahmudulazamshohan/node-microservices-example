@@ -56,7 +56,7 @@ const app = new App(
       MessageQueueType.JSON,
       (msg: MType) => {
         console.log("msg receivd", msg);
-        return UserModel.find({});
+        return UserModel.find({}).limit(1);
       }
     );
 
@@ -64,20 +64,20 @@ const app = new App(
 
     const REPLY_QUEUE = "amq.rabbitmq.reply-to";
 
-    const response = await messageQueueProvider.send(
-      MQueue.PRODUCT_ORDER,
-      {
-        count,
-        name: "Shohan",
-      },
-      {},
-      REPLY_QUEUE
-      // (msg) => {
-      //   console.log("ReplyQueue", JSON.parse(msg));
-      // }
-    );
+    // const response = await messageQueueProvider.send(
+    //   MQueue.PRODUCT_ORDER,
+    //   {
+    //     count,
+    //     name: "Shohan",
+    //   },
+    //   {},
+    //   REPLY_QUEUE
+    //   // (msg) => {
+    //   //   console.log("ReplyQueue", JSON.parse(msg));
+    //   // }
+    // );
 
-    console.log("response", response);
+    // console.log("response", response);
   } catch (err) {
     console.log(err);
   }

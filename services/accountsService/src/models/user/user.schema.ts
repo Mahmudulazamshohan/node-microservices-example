@@ -1,11 +1,10 @@
 import { Schema, Document } from "mongoose";
 const { Types } = Schema;
 
-const UserSchema = new Schema(
+const UserSchema: Schema = new Schema(
   {
     username: {
       type: Types.String,
-      unique: true,
       required: true,
     },
     firstname: {
