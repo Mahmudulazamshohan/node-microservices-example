@@ -13,17 +13,21 @@ function App() {
   let element: JSX.Element = <></>;
 
   useEffect(() => {
-    var count = 1;
-    var interval = 100;
-    var per = 28;
-    var progessInterval = setInterval(() => {
+    let count = 1;
+
+    const INTERVAL = 100;
+    const SPEED = 28;
+
+    let progessInterval = setInterval(() => {
       if (count >= 100) {
         clearInterval(progessInterval);
         setLoaded(true);
       }
+
       setProgress(count);
-      count = count + Math.floor(Math.random() * per);
-    }, interval);
+
+      count = count + Math.floor(Math.random() * SPEED);
+    }, INTERVAL);
   }, []);
 
   if (isLoaded) {

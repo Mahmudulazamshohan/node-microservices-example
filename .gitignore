@@ -29,6 +29,9 @@ fontend/build
 fontend/node_modules
 
 
+services/node_modules
+
+
 
 services/productsService/node_modules
 services/authService/node_modules
