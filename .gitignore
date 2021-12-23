@@ -41,3 +41,9 @@ services/accountsService/node_modules
 services/productsService/build
 services/authService/build
 services/accountsService/build
+
+
+services/productsService/package-lock.json
+services/authService/package-lock.json
+services/accountsService/package-lock.json
+

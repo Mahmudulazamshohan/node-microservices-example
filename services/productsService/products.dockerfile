@@ -10,6 +10,8 @@ RUN mkdir -p /home/node/products/storage
 
 WORKDIR /home/node/products
 
+RUN npm cache clean --force
+
 RUN npm install -g typescript
 # COPY storage ./
 COPY package*.json ./
