@@ -4,6 +4,7 @@
     "start:auth": "npm run start --workspace=authService",
     "start:accounts": "npm run start --workspace=accountsService",
     "start:products": "npm run start --workspace=productsService",
+    "repo:build": "tsc -p ./",
     "test": "npm test --workspaces --max-old-space-size=8192"
   },
   "workspaces": [

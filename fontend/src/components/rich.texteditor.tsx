@@ -8,6 +8,7 @@ export interface IEditorModules {
 export interface IRichTextEditor {
   htmlString: string;
 }
+
 const RichTextEditor: React.FC<IRichTextEditor> = ({
   htmlString,
 }) => {
